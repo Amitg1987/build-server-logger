@@ -30,7 +30,11 @@ public class Application {
         LOGGER.info("****************************************************************************");
         LOGGER.info("!! Server Logs Event Processing Started !!");
 
-        logProcessingService.process("input.txt");
+        if (args.length < 1) {
+            LOGGER.error("Input file path missing");
+        } else {
+            logProcessingService.process(args[0]);
+        }
     }
 
     @Bean(name = "queue")
