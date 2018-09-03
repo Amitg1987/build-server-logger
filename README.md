@@ -40,7 +40,7 @@ gradle clean build
 The java application can be started locally from your IDE, after importing it as an existing project in workspace.  
 It can also be started manually with following command, from the same location, from where build was triggered as above.
 ```
-java -jar build\libs\build-server-logger-0.0.1-SNAPSHOT.jar
+java -jar build\libs\build-server-logger-0.0.1-SNAPSHOT.jar input.txt
 ```
 
 To see content of H2 database, make sure you have a running application as done above.
@@ -48,11 +48,12 @@ As it has an embedded Tomcat running and h2 console have been enabled to view da
 Please refer to application.properties for other datasource related properties.
 ```
 * JDBC Url for DB
-jdbc:h2:file:~/h2/eventDB
+jdbc:h2:file:./h2/eventDB
 
 * DB Link 
 http://localhost:8080/h2-console
 ```
+** Application developed on Windows machine, Unix/Mac not tested.
 
 * **NOTE**: Application once started will remain in running state until interrupted, 
 as EventProcessor thread keep waiting for new events in Event Queue.
