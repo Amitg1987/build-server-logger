@@ -13,6 +13,19 @@ import com.cs.serverlogger.dto.EventDTO;
 import com.cs.serverlogger.entity.Event;
 import com.cs.serverlogger.repository.EventRepository;
 
+/**
+ * Class: EventProcessor, responsible for event processing and placing into
+ * persistence storage DB, This class uses blocking queue for storing events and
+ * also implements runnable interface. Queue will be same instance(singleton)
+ * irrespective of number of instance of runnable/threads of EventProcessor
+ * 
+ * Currently, there is only one instance of EventProcessor is started in
+ * InputFileParser:readAndProcessStream()
+ * 
+ * @author Amit Kumar Gupta
+ *
+ */
+
 @Component
 public class EventProcessor implements Runnable {
 
@@ -37,14 +50,15 @@ public class EventProcessor implements Runnable {
                 if (e != null) {
                     processEvent(e);
                 }
-            } catch (InterruptedException e1) {
-                LOGGER.error("Error while processsing event from Queue");
+            } catch (InterruptedException ex) {
+                LOGGER.error("Error while processsing event from Queue", ex);
             }
 
         }
     }
 
     private void processEvent(EventDTO e) {
+        LOGGER.debug("Processing event having id:{}, state:{}, timeStamp:{}", e.getId(), e.getState(), e.getTimestamp());
         Event event = eventRepository.findOne(e.getId());
 
         if (event == null) {
@@ -52,6 +66,7 @@ public class EventProcessor implements Runnable {
         } else {
             processExistingEvent(e, event);
         }
+        LOGGER.debug("Done with processing, event having id:{}, state:{}, timeStamp:{}", e.getId(), e.getState(), e.getTimestamp());
     }
 
     private void processNewEvent(EventDTO e) {

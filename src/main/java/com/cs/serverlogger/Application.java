@@ -3,6 +3,8 @@ package com.cs.serverlogger;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
@@ -18,9 +20,16 @@ import com.cs.serverlogger.service.LogProcessingService;
 
 public class Application {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(Application.class);
+
     public static void main(String[] args) throws Exception {
+
         ApplicationContext context = SpringApplication.run(Application.class, args);
         LogProcessingService logProcessingService = context.getBean(LogProcessingService.class);
+
+        LOGGER.info("****************************************************************************");
+        LOGGER.info("!! Server Logs Event Processing Started !!");
+
         logProcessingService.process("input.txt");
     }
 
