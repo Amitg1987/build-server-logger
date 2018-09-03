@@ -1,0 +1,82 @@
+apply plugin: 'pmd'
+apply plugin: 'checkstyle'
+apply plugin: 'findbugs'
+
+dependencies {
+    pmd("net.sourceforge.pmd:pmd:5.4.1")
+    pmd("net.sourceforge.pmd:pmd-core:5.4.1")
+    pmd("net.sourceforge.pmd:pmd-java:5.4.1")
+}
+
+
+
+tasks.withType(Pmd) {
+    source = fileTree('src/main/java')
+}
+pmd {
+    ignoreFailures = false
+    reportsDir = file("$project.buildDir/reports/pmd")
+    ruleSetConfig = resources.text.fromFile("conf/pmd.xml")
+}
+
+pmdMain {
+    ignoreFailures = false
+}
+
+
+checkstyleMain.source = "src/main/java"
+checkstyle {
+    configFile = file("${project.rootDir}/conf/checkstyle.xml")
+    toolVersion = '6.7'
+    ignoreFailures = false
+}
+
+//https://issues.gradle.org/browse/GRADLE-2888
+def checkstyleWarningsFile = "${project.buildDir}/reports/checkstyle/main.xml"
+task verifyNoCheckstyleWarnings(type: GradleBuild) {
+    doLast {
+        File warningsFile = file(checkstyleWarningsFile)
+        if (warningsFile.exists() && warningsFile.text.contains("<error ")) {
+            throw new GradleException("There were checkstyle warnings! For more info check $warningsFile")
+        }
+    }
+}
+checkstyleMain.finalizedBy verifyNoCheckstyleWarnings
+
+task checkstyleHtml << {
+    ant.xslt(in: checkstyleMain.reports.xml.destination,
+            style: file("${project.rootDir}/conf/checkstyle-noframes-sorted.xsl"),
+            out: new File(checkstyleMain.reports.xml.destination.parent, 'main.html'))
+}
+checkstyleMain.finalizedBy checkstyleHtml
+
+findbugs {
+    toolVersion = "3.+"
+    sourceSets = [sourceSets.main]
+    ignoreFailures = false
+    reportsDir = file("$project.buildDir/reports/findbugs")
+    effort = "max"
+    reportLevel = "low"
+    excludeFilter = file("$projectDir/conf/findbugsExcludeFilter.xml")
+}
+
+task checkFindBugsReport << {
+    def xmlReport = findbugsMain.reports.xml
+    File xmlReportFile = file(xmlReport.destination)
+    if (xmlReportFile.exists()) {
+        def slurped = new XmlSlurper().parse(xmlReport.destination)
+        def bugsFound = slurped.BugInstance.size()
+        if (bugsFound > 0) {
+            throw new GradleException("$bugsFound FindBugs rule violations were found. See the report at: $xmlReport.destination")
+        }
+    }
+}
+
+findbugsMain.finalizedBy checkFindBugsReport
+
+tasks.withType(FindBugs) {
+    reports {
+        xml.enabled = false
+        html.enabled = true
+    }
+}
