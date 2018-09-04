@@ -26,7 +26,9 @@ jacocoTestReport {
     afterEvaluate {
         classDirectories = files(classDirectories.files.collect {
             fileTree(dir: it, exclude: [
-
+				'com/cs/serverlogger/*Application*',
+				'com/cs/serverlogger/entity/*Event*',
+				'com/cs/serverlogger/dto/*EventDTO*',
             ])
         })
     }

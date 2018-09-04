@@ -1,8 +1,9 @@
 package com.cs.serverlogger.parser;
 
+import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Scanner;
+import java.io.InputStreamReader;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,11 +35,11 @@ public class InputFileParser {
      * finally, pushing event to EventProcessor.
      * 
      * @param fileName
+     * @throws IOException 
+     * @throws InterruptedException 
      */
-    public void readAndProcessStream(String fileName) {
-        try {
-            FileInputStream inStream = new FileInputStream(fileName);
-            Scanner scanner = new Scanner(inStream, "UTF-8");
+    public void readAndProcessStream(String fileName) throws IOException, InterruptedException {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), "UTF-8"))) {
 
             // Starting consumer thread, responsible for event processing
             new Thread(eventProcessor).start();
@@ -46,8 +47,7 @@ public class InputFileParser {
             String inputEventObject;
             Gson gson = new GsonBuilder().create();
 
-            while (scanner.hasNextLine()) {
-                inputEventObject = scanner.nextLine();
+            while ((inputEventObject = br.readLine()) != null) {
                 EventDTO event = gson.fromJson(inputEventObject, EventDTO.class);
 
                 // Putting event into Queue for processing
@@ -55,11 +55,12 @@ public class InputFileParser {
                 LOGGER.debug("Event having id:{}, state:{}, timeStamp:{} pushed to Queue", event.getId(),
                         event.getState(), event.getTimestamp());
             }
-            scanner.close();
         } catch (IOException ex) {
             LOGGER.error("Error while reading file", ex);
+            throw ex;
         } catch (InterruptedException ex) {
             LOGGER.error("Error while adding event to Queue", ex);
+            throw ex;
         }
     }
 }

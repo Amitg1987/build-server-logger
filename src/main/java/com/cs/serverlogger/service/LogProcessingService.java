@@ -1,5 +1,7 @@
 package com.cs.serverlogger.service;
 
+import java.io.IOException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +24,7 @@ public class LogProcessingService {
     @Autowired
     private InputFileParser inputFileParser;
 
-    public void process(String fileName) {
+    public void process(String fileName) throws IOException, InterruptedException {
 
         LOGGER.debug("Forwarding process request to file parser");
 
