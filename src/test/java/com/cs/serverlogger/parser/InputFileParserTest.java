@@ -2,7 +2,6 @@ package com.cs.serverlogger.parser;
 
 import static org.mockito.Matchers.any;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.junit.Before;

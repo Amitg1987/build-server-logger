@@ -37,6 +37,10 @@ public class EventProcessor implements Runnable {
     @Autowired
     private EventRepository eventRepository;
 
+    public BlockingQueue<EventDTO> getQueue() {
+        return queue;
+    }
+
     public void put(EventDTO event) throws InterruptedException {
         this.queue.put(event);
     }
@@ -57,7 +61,7 @@ public class EventProcessor implements Runnable {
         }
     }
 
-    private void processEvent(EventDTO e) {
+    protected void processEvent(EventDTO e) {
         LOGGER.debug("Processing event having id:{}, state:{}, timeStamp:{}", e.getId(), e.getState(), e.getTimestamp());
         Event event = eventRepository.findOne(e.getId());
 
