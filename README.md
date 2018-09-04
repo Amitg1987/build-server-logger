@@ -23,10 +23,15 @@ Key Building Blocks,
 * Flyway
 * CheckStyle
 * Findbugs
+* PMD
+
+All of above are integrated through build system.
+CheckStyle, FindBugs and PMD are integrated in such a way, that build will break if code doesn't comply with checks/conditions specified.
 
 Project Structure (key components):
-* **src**: source folder of the project.
-* **src/main/resource**:
+* **src/main/java**: source folder of the project.
+* **src/test/java**: unit test folder of the project
+* **src/main/resources**:
   * **db.migration**: contains db scripts, used by Flyway.
   * **application.properties**: contains application properties for datasource and hibernate.
 
